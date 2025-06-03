@@ -1,0 +1,70 @@
+/* OrdersList.css */
+
+.single-order-row {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.single-order-row:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.sorting-header {
+    cursor: pointer;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.status-processing {
+    background-color: #FFF5E5;
+    color: #FF9800;
+}
+
+.status-shipping {
+    background-color: #E1F5FE;
+    color: #03A9F4;
+}
+
+.status-pending {
+    background-color: #F5E6FF;
+    color: #9C27B0;
+}
+
+.status-delivered {
+    background-color: #E8F5E9;
+    color: #4CAF50;
+}
+
+.progress-table {
+    box-shadow: 0px 10px 30px 0px rgba(133, 66, 189, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.page-link {
+    color: #ff5c97;
+    cursor: pointer;
+}
+
+.page-item.active .page-link {
+    background-color: #ff5c97;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+}
