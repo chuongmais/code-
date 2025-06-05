@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, User, Phone, MapPin, Truck, CheckCircle, AlertCircle } from 'lucide-react';
-import {getShipper, putShipper} from "../Services/OrderService";
+import {getShipper, postDeliveryAssignment, putShipper} from "../Services/OrderService";
 // Import CSS
 
 const ModalShipper = ({ isOpen, onClose, orderData, onAssignShipper }) => {
@@ -40,7 +40,8 @@ const ModalShipper = ({ isOpen, onClose, orderData, onAssignShipper }) => {
         setIsSubmitting(true);
         try {
             // Simulate API call
-            await putShipper(orderData.orderID, selectedShipper.StaffID)
+            await postDeliveryAssignment(orderData.orderID, selectedShipper.StaffID)
+            alert("Gán thành công!");
 
             // Call parent callback
             onAssignShipper(orderData.orderID, selectedShipper.StaffID);

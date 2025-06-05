@@ -3,9 +3,12 @@ import { useState, useEffect } from 'react';
 import { Search, Filter, UserCheck, ChevronRight, Truck, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import { Header_Staff, Footer, ScrollToTop } from '../Layout';
 import {getAllOrders, getShipper, postTracking} from '../Services/OrderService'
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import ModalShipper from '../Component/ModalShipper';
 import formatDate from '../utils/date';
+
+
+
 
 
 const OrdersList = () => {
@@ -18,6 +21,7 @@ const OrdersList = () => {
     const navigate = useNavigate();
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+
 
     //Modal State
     const [showShipperModal, setShowShipperModal] = useState(false);
@@ -168,13 +172,7 @@ const OrdersList = () => {
     // Xử lý gán shipper
     const handleAssignShipper = async (orderID, shipper) => {
         try {
-            //console.log(`Gán shipper ${shipper.name} cho đơn hàng ${orderCode}`);
-
-
             await postTracking(orderID, 'Shipper đã nhận hàng');
-
-            // Hiển thị thông báo thành công
-            //alert(`Đã gán thành công shipper ${shipper.name} cho đơn hàng ${orderCode}`);
 
         } catch (error) {
             console.error('Lỗi khi gán shipper:', error);

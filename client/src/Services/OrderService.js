@@ -27,9 +27,10 @@ export const getShipper = async () => {
 }
 
 // Gán đơn hàng cho shipper
-export const putShipper = async  (order_id, shipper_id) => {
+export const postDeliveryAssignment = async  (orderID, shipper_id) => {
     try {
-        const response = await axios.put(`${BASE_URL}/orders/${order_id}`, {
+        const response = await axios.post(`${BASE_URL}/DeliveryAssignment`, {
+            orderID: orderID,
             shipper_id: shipper_id
         });
         console.log('API response:', response.data);
@@ -42,6 +43,8 @@ export const putShipper = async  (order_id, shipper_id) => {
         console.error(error);
     }
 }
+
+
 
 // Cập nhật traking
 export const postTracking = async (order_id, status) => {

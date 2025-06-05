@@ -59,23 +59,17 @@ router.get('/shipper', async (req, res) => {
 });
 
 // Gán đơn hàng cho shipper
-router.put('/orders/:orderID', async (req, res) => {
+router.post('/DeliveryAssignment', async (req, res) => {
   try {
-    const { orderID } = req.params;
-    const { shipper_id } = req.body;
+    const { orderID, shipper_id } = req.body;
 
     const [result] = await db.execute(
-        'UPDATE `Order` SET shipper_id = ? WHERE OrderID = ?',
-        [shipper_id, orderID]
+        'INSERT INTO DeliveryAssignment (`OrderID`, `DriverID`) VALUES (?, ?)',
+        [orderID, shipper_id]
     );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Không tìm thấy đơn hàng để cập nhật' });
-    }
-
     res.status(200).json({ message: 'Cập nhật đơn hàng thành công' });
   } catch (err) {
-    console.error('[❌ ERROR PUT /orders/:order_code]:', err);
+    console.error('❌ ERROR :', err);
     res.status(500).json({ error: 'Lỗi máy chủ nội bộ' });
   }
 });
