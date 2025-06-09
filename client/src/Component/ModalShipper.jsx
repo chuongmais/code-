@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, User, Phone, MapPin, Truck, CheckCircle, AlertCircle } from 'lucide-react';
-import {getShipper, postDeliveryAssignment, putShipper} from "../Services/OrderService";
-// Import CSS
+import {getShipper, postDeliveryAssignment} from "../Services/OrderService";
+import {updateShipment} from "../Services/VehicleService";
 
 const ModalShipper = ({ isOpen, onClose, orderData, onAssignShipper }) => {
     const [shippers, setShippers] = useState([]);
@@ -15,6 +15,7 @@ const ModalShipper = ({ isOpen, onClose, orderData, onAssignShipper }) => {
             fetchShippers();
         }
     }, [isOpen]);
+
 
     const fetchShippers = async () => {
         try {
@@ -36,15 +37,15 @@ const ModalShipper = ({ isOpen, onClose, orderData, onAssignShipper }) => {
             alert('Vui lòng chọn shipper');
             return;
         }
-
         setIsSubmitting(true);
         try {
             // Simulate API call
-            await postDeliveryAssignment(orderData.orderID, selectedShipper.StaffID)
-            alert("Gán thành công!");
+            await postDeliveryAssignment(orderData.OrderID, selectedShipper.StaffID);
+
+            await updateShipment(orderData.OrderID);
 
             // Call parent callback
-            onAssignShipper(orderData.orderID, selectedShipper.StaffID);
+            onAssignShipper(orderData.OrderID, selectedShipper.StaffID);
 
             // Close modal
             handleClose();
@@ -130,17 +131,15 @@ const ModalShipper = ({ isOpen, onClose, orderData, onAssignShipper }) => {
                                 {shippers.map(shipper => (
                                     <div key={shipper.StaffID} className="col-md-6 mb-3">
                                         <div
-                                            className={`shipper-card border rounded p-3 cursor-pointer ${
-                                                selectedShipper?.StaffID === shipper.StaffID ? 'selected border-primary bg-light' : ''
-                                            } ${shipper.status === 'Nghỉ' ? 'disabled' : ''}`}
-                                            onClick={() => shipper.status !== 'Nghỉ' && handleSelectShipper(shipper)}
+                                            className={`shipper-card border rounded p-3 cursor-pointer
+                                            ${selectedShipper?.StaffID === shipper.StaffID ? 'selected border-primary bg-light' : ''} `}
+                                            onClick={() => handleSelectShipper(shipper)}
                                         >
                                             <div className="d-flex justify-content-between align-items-start mb-2">
                                                 <div className="d-flex align-items-center">
                                                     <User size={20} className="me-2 text-primary" />
                                                     <strong>{shipper.Name}</strong>
                                                 </div>
-                                                {/*{getStatusBadge(shipper.status)}*/}
                                             </div>
 
                                             <div className="shipper-details small text-muted">
@@ -148,14 +147,6 @@ const ModalShipper = ({ isOpen, onClose, orderData, onAssignShipper }) => {
                                                     <Phone size={14} className="me-1" />
                                                     {shipper.Phone}
                                                 </p>
-                                                {/*<p className="mb-1">*/}
-                                                {/*    <MapPin size={14} className="me-1" />*/}
-                                                {/*    Khu vực: {shipper.area}*/}
-                                                {/*</p>*/}
-                                                {/*<p className="mb-1">*/}
-                                                {/*    <Truck size={14} className="me-1" />*/}
-                                                {/*    Đơn hiện tại: {shipper.currentOrders}/{shipper.maxOrders}*/}
-                                                {/*</p>*/}
                                             </div>
 
                                             {selectedShipper?.StaffID === shipper.StaffID && (

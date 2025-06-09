@@ -1,4 +1,4 @@
-/* OrdersList.css */
+/* OrdersList.css - Enhanced Version */
 
 .single-order-row {
     cursor: pointer;
@@ -56,6 +56,74 @@
     margin-bottom: 0;
 }
 
+/* Enhanced table styling for better alignment */
+.table th,
+.table td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 12px 8px;
+}
+
+/* Keep first column (Loại xe) left-aligned for readability */
+.table th:first-child,
+.table td:first-child {
+    text-align: left;
+    white-space: nowrap;
+}
+
+/* Compact button styling */
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 12px;
+    line-height: 1.2;
+    border-radius: 4px;
+    min-width: auto;
+    white-space: nowrap;
+}
+
+/* Action buttons container for better spacing */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    flex-wrap: nowrap;
+}
+
+/* Specific styling for update buttons */
+.btn-update {
+    background-color: #ff5c97;
+    border-color: #ff5c97;
+    color: white;
+    font-size: 11px;
+    padding: 3px 6px;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+}
+
+.btn-update:hover {
+    background-color: #e54a85;
+    border-color: #e54a85;
+    transform: scale(1.05);
+}
+
+/* Specific styling for detail buttons */
+.btn-detail {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+    font-size: 11px;
+    padding: 3px 6px;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+}
+
+.btn-detail:hover {
+    background-color: #218838;
+    border-color: #218838;
+    transform: scale(1.05);
+}
+
+/* Pagination styling */
 .page-link {
     color: #ff5c97;
     cursor: pointer;
@@ -63,8 +131,61 @@
 
 .page-item.active .page-link {
     background-color: #ff5c97;
+    border-color: #ff5c97;
 }
 
-.btn-sm {
-    padding: 5px 10px;
+/* Table header improvements */
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .table th,
+    .table td {
+        padding: 8px 4px;
+        font-size: 14px;
+    }
+    
+    .btn-sm {
+        padding: 2px 4px;
+        font-size: 10px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 2px;
+    }
+}
+
+/* Additional enhancements */
+.table-responsive {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.table tbody tr:hover {
+    background-color: #e8f4fd;
+}
+
+/* License plate number styling */
+.license-plate {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* Status column improvements */
+.status-column {
+    min-width: 120px;
 }

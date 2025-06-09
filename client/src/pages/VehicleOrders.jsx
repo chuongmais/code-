@@ -1,22 +1,29 @@
 import { useState, useEffect } from 'react';
 import { Search, Filter, UserCheck, ArrowUpDown, Truck, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import { Header_Staff, Footer, ScrollToTop } from '../Layout';
-import {getAllOrders} from '../Services/OrderService'
+import { getShipper, postTracking} from '../Services/OrderService'
+import { getOrdersByVehicle } from '../Services/VehicleService';
 import { useNavigate } from "react-router-dom";
+import ModalShipper from '../Component/ModalShipper';
 import formatDate from '../utils/date';
 import {formatMoney} from "../utils/Money";
+import { useParams } from 'react-router-dom';
 
 const VehicleOrders = () => {
     const [orders, setOrders] = useState([]);
     const [searchItem, setSearchItem] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [selectedStatus, setSelectedStatus] = useState('Tất cả');
+    const [warehouse, setWarehouse] = useState('Tất cả');
     const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' })
     const ordersPerPage = 10;
     const navigate = useNavigate();
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const {vehicle_id} = useParams();
 
+    //Modal State
+    const [showShipperModal, setShowShipperModal] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState(null);
 
     useEffect(() => {
         fetchOrders();
@@ -27,7 +34,7 @@ const VehicleOrders = () => {
         setIsLoading(true);
         setError(null);
         try {
-            const data = await getAllOrders();
+            const data = await getOrdersByVehicle(vehicle_id);
             console.log('API response data:', data); // Debug log
 
             // Kiểm tra và xử lý dữ liệu trả về
@@ -67,20 +74,11 @@ const VehicleOrders = () => {
         setSortConfig({ key, direction });
     }
 
-    // Lọc theo trạng thái
-    const handleStatusFilter = (status) => {
-        setSelectedStatus(status);
+    //Lọc theo kho hàng
+    const handleWarehouse = (location) => {
+        setWarehouse(location);
         setCurrentPage(1);
-    };
-
-    // Các trạng thái đơn hàng để lọc
-    const statuses  = [
-        'Tất cả',
-        'Đã tiếp nhận',
-        'Đang vận chuyển',
-        'Đã giao hàng',
-        'Shipper đã nhận hàng'
-    ];
+    }
 
     //Lọc và sắp xếp danh sách đơn hàng
     const filteredOrders = Array.isArray(orders) ? orders.filter(order => {
@@ -89,8 +87,8 @@ const VehicleOrders = () => {
         const matchesSearch = (order?.orderCode?.toString() || '').toLowerCase().includes(searchItem.toLowerCase()) ||
             (order?.customerName?.toString() || '').toLowerCase().includes(searchItem.toLowerCase());
 
-        const matchesStatus = selectedStatus === 'Tất cả' ||
-            order?.status === selectedStatus;
+        const matchesStatus = warehouse === 'Tất cả' ||
+            order?.endWarehouse === warehouse;
 
         return matchesSearch && matchesStatus;
     })
@@ -118,6 +116,26 @@ const VehicleOrders = () => {
     const nextPage = () => setCurrentPage(prev => prev < totalPages ? prev + 1 : prev);
     const prevPage = () => setCurrentPage(prev => prev > 1 ? prev - 1 : prev);
 
+    // Các trạng thái đơn hàng để lọc
+    const location = [
+        'Tất cả',
+        'Kho Lạng Sơn',
+        'Kho Quảng Ninh',
+        'Kho Hải Phòng',
+        'Kho Hà Nội',
+        'Kho Hà Nam',
+        'Kho Thanh Hóa',
+        'Kho Nghệ An',
+        'Kho Hà Tĩnh',
+        'Kho Đà Nẵng',
+        'Kho Quảng Nam',
+        'Kho Khánh Hòa',
+        'Kho Đắk Lắk',
+        'Kho Bình Dương',
+        'Kho Đồng Nai',
+        'Kho Hồ Chí Minh'
+    ];
+
     // Xử lý điều hướng đến trang chi tiết đơn hàng
     const navigateToOrderDetail = (orderID) => {
         navigate(`/order/${orderID}`)
@@ -140,6 +158,34 @@ const VehicleOrders = () => {
                 return { icon: <Clock size={18} />, className: 'status-default' };
         }
     };
+
+    // Xử lý hiển thị modal gán shipper
+    const handleShowShipperModal = (order, e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setSelectedOrder(order);
+        setShowShipperModal(true);
+    };
+
+    // Xử lý đóng modal
+    const handleCloseShipperModal = () => {
+        console.log('close modal', selectedOrder);
+        setShowShipperModal(false);
+        setSelectedOrder(null);
+    };
+
+    // Xử lý gán shipper
+    const handleAssignShipper = async (orderID, shipper) => {
+        try {
+            await postTracking(orderID, 'Shipper đã nhận hàng');
+            fetchOrders();
+        } catch (error) {
+            console.error('Lỗi khi gán shipper:', error);
+            alert('Có lỗi xảy ra khi gán shipper. Vui lòng thử lại.');
+        }
+    };
+
+
     const SearchFilter = () => {
         return (
             <>
@@ -172,18 +218,17 @@ const VehicleOrders = () => {
                                 <Filter size={40} className="flaticon-filter" />
                             </div>
                             <div className="cat-cap">
-                                <h5>Lọc theo trạng thái</h5>
+                                <h5>Lọc theo kho đích</h5>
                                 <div className="select-items">
                                     <select
                                         className="nice-select"
-                                        value={selectedStatus}
-                                        onChange={(e) => handleStatusFilter(e.target.value)}
+                                        value={warehouse}
+                                        onChange={(e) => handleWarehouse(e.target.value)}
                                         disabled={isLoading}
                                     >
-                                        {statuses.map(status => (
+                                        {location.map(status => (
                                             <option key={status} value={status}>{status}</option>
                                         ))}
-
                                     </select>
                                 </div>
                             </div>
@@ -252,9 +297,10 @@ const VehicleOrders = () => {
                                         <th scope="col">Khách hàng</th>
                                         <th scope="col">Điểm đi</th>
                                         <th scope="col">Điểm đến</th>
-                                        <th scope="col" className="sorting-header">
+                                        <th scope="col" className="sorting-header" onClick={() => handleSort('status')}>
                                             <div className="flex items-center">
                                                 Trạng thái
+                                                <ArrowUpDown size={14} className="ml-1"/>
                                             </div>
                                         </th>
                                         <th scope="col" className="sorting-header" onClick={() => handleSort('date')}>
@@ -265,6 +311,7 @@ const VehicleOrders = () => {
                                         </th>
                                         <th scope="col">Trọng lượng</th>
                                         <th scope="col">Thành tiền</th>
+                                        <th scope="col">Gán Shipper</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -292,6 +339,15 @@ const VehicleOrders = () => {
                                                     <td className="date">{formatDate(order.createdAt)}</td>
                                                     <td className="weight">{order.weight || 'N/A'}</td>
                                                     <td className="price">{formatMoney(order.totalAmount) || 'N/A'}</td>
+                                                    <td className="details">
+                                                        <button
+                                                            className="btn btn-outline-primary btn-sm"
+                                                            onClick={(e) => handleShowShipperModal(order, e)}
+                                                            title="Gán shipper"
+                                                        >
+                                                            <UserCheck size={16}/>
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             );
                                         })
@@ -363,6 +419,13 @@ const VehicleOrders = () => {
 
             <Footer />
             <ScrollToTop />
+
+            <ModalShipper
+                isOpen={showShipperModal}
+                onClose={handleCloseShipperModal}
+                orderData={selectedOrder}
+                onAssignShipper={handleAssignShipper}
+            />
         </div>
     );
 };

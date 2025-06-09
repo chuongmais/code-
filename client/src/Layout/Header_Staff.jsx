@@ -42,16 +42,14 @@ const Header_Staff = () => {
                                             <nav>
                                                 <ul id="navigation">
                                                     <li><Link to="/">Home</Link></li>
-                                                    <li><Link to="/orderslist">Danh sách đơn hàng</Link></li>
-                                                    <li><Link to="/services">Services</Link></li>
                                                     <li>
-                                                        <Link to="/blog">Blog</Link>
+                                                        <Link to="">Xem danh sách</Link>
                                                         <ul className="submenu">
-                                                            <li><Link to="/blog">Blog</Link></li>
-                                                            <li><Link to="/blog-details">Blog Details</Link></li>
-                                                            <li><Link to="/elements">Element</Link></li>
+                                                            <li><Link to="/orders">Đơn hàng</Link></li>
+                                                            <li><Link to="/vehicles">Xe vận chuyển</Link></li>
                                                         </ul>
                                                     </li>
+                                                    <li><Link to="/orderbrowser">Duyệt đơn hàng</Link></li>
                                                     <li><Link to="/contact">Contact</Link></li>
                                                 </ul>
                                             </nav>

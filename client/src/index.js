@@ -7,7 +7,10 @@ import { ScrollToTop } from "./Layout";
 import {
     Home, 
     OrdersList,
-    OrderDetail
+    OrderDetail,
+    OrderBrowser,
+    VehicleList,
+    VehicleOrders
 } from './pages'
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -16,9 +19,11 @@ root.render(
         <ScrollToTop>
             <Routes>
                 <Route path="/" element={<Home/>} />
-                <Route path="/orderslist" element={<OrdersList/>} />
+                <Route path="/orders" element={<OrdersList/>} />
                 <Route path="/order/:ID" element={<OrderDetail/>} />
-                {/*<Route path="/map" element={<Map/>} />*/}
+                <Route path="/orderbrowser" element={<OrderBrowser/>} />
+                <Route path="/vehicles" element={<VehicleList/>} />
+                <Route path="/vehicle/:vehicle_id" element={<VehicleOrders/>} />
             </Routes>
         </ScrollToTop>
     </BrowserRouter>

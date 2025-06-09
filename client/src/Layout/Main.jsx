@@ -1,6 +1,80 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
+import {getOrderById} from "../Services/OrderService";
+import formatDate from '../utils/date';
+import { formatMoney} from "../utils/Money";
+
 
 const Main = () => {
+    const [order, setOrder] = useState(null);
+    const [orders, setOrders] = useState([]); // Added missing orders state
+    const [searchItem, setSearchItem] = useState('');
+    const [filteredOrders, setFilteredOrders] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    // Fixed handleSearch function - made it async and fixed onChange handler
+    const handleSearch = async (e) => {
+        e.preventDefault();
+        if (!searchItem.trim()) return;
+
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const data = await getOrderById(searchItem.trim());
+            if (data) {
+                setOrder(data);
+                setFilteredOrders([data]);
+            } else {
+                setOrder(null);
+                setFilteredOrders([]);
+            }
+        } catch (err) {
+            setError('Có lỗi xảy ra khi tìm kiếm đơn hàng');
+            setOrder(null);
+            setFilteredOrders([]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Fixed input change handler
+    const handleInputChange = (e) => {
+        setSearchItem(e.target.value);
+        // Clear previous results when input changes
+        if (!e.target.value.trim()) {
+            setOrder(null);
+            setFilteredOrders([]);
+            setError(null);
+        }
+    };
+
+    // Helper function to determine badge class for status
+    const getStatusBadgeClass = (status) => {
+        switch (status?.toLowerCase()) {
+            case 'hoàn thành':
+                return 'badge-success';
+            case 'mới tạo':
+                return 'badge-primary';
+            case 'đang xử lý':
+                return 'badge-warning';
+            case 'đang giao':
+                return 'badge-info';
+            case 'đã hủy':
+                return 'badge-danger';
+            case 'Đơn hoàn lại':
+                return 'badge-return';
+            default:
+                return 'badge-secondary';
+        }
+    };
+
+    // So sánh case-insensitive an toàn hơn
+    const shouldShowSendButton = (status) => {
+        const normalizedStatus = status?.toLowerCase().trim();
+        return normalizedStatus === 'mới tạo' || normalizedStatus === 'đơn hoàn lại';
+    };
+
     return (
         <>
             {/* Hero Slider Area */}
@@ -13,12 +87,20 @@ const Main = () => {
                                     <div className="hero__caption">
                                         <h1>Safe & Reliable <span>Logistic</span> Solutions!</h1>
                                     </div>
-                                    <form action="#" className="search-box">
+                                    <form onSubmit={handleSearch} className="search-box">
                                         <div className="input-form">
-                                            <input type="text" placeholder="Your Tracking ID" />
+                                            <input
+                                                type="text"
+                                                placeholder="Nhập mã đơn"
+                                                value={searchItem}
+                                                onChange={handleInputChange}
+                                                disabled={isLoading}
+                                            />
                                         </div>
                                         <div className="search-form">
-                                            <a href="#">Track & Trace</a>
+                                            <button type="submit" disabled={isLoading || !searchItem.trim()}>
+                                                {isLoading ? 'Đang tìm...' : 'Track & Trace'}
+                                            </button>
                                         </div>
                                     </form>
                                     <div className="hero-pera">
@@ -31,237 +113,106 @@ const Main = () => {
                 </div>
             </div>
 
-            {/* Info Area */}
-            <div className="our-info-area pt-70 pb-40">
+            {/* Order Results Section */}
+            <div className="order-results-section">
                 <div className="container">
-                    <div className="row">
-                        <div className="col-lg-4 col-md-6 col-sm-6">
-                            <div className="single-info mb-30">
-                                <div className="info-icon">
-                                    <span className="flaticon-support"></span>
-                                </div>
-                                <div className="info-caption">
-                                    <p>Call Us Anytime</p>
-                                    <span>+ (123) 1800-567-8990</span>
-                                </div>
-                            </div>
+                    {error && (
+                        <div className="alert alert-danger" role="alert">
+                            <i className="fas fa-exclamation-triangle me-2"></i>
+                            {error}
                         </div>
-                        <div className="col-lg-4 col-md-6 col-sm-6">
-                            <div className="single-info mb-30">
-                                <div className="info-icon">
-                                    <span className="flaticon-clock"></span>
-                                </div>
-                                <div className="info-caption">
-                                    <p>Sunday CLOSED</p>
-                                    <span>Mon - Sat 8.00 - 18.00</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-lg-4 col-md-6 col-sm-6">
-                            <div className="single-info mb-30">
-                                <div className="info-icon">
-                                    <span className="flaticon-place"></span>
-                                </div>
-                                <div className="info-caption">
-                                    <p>Columbia, SC 29201</p>
-                                    <span>USA, New York - 10620</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    )}
 
-            {/* Services Area */}
-            <div className="categories-area section-padding30">
-                <div className="container">
-                    <div className="row">
-                        <div className="col-lg-12">
-                            <div className="section-tittle text-center mb-80">
-                                <span>Our Services</span>
-                                <h2>What We Can Do For You</h2>
+                    {isLoading && (
+                        <div className="loading-container">
+                            <div className="loading-spinner">
+                                <div className="spinner"></div>
+                                <p>Đang tìm kiếm đơn hàng...</p>
                             </div>
                         </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-lg-4 col-md-6 col-sm-6">
-                            <div className="single-cat text-center mb-50">
-                                <div className="cat-icon">
-                                    <span className="flaticon-shipped"></span>
-                                </div>
-                                <div className="cat-cap">
-                                    <h5><a href="services.html">Land Transport</a></h5>
-                                    <p>The sea freight service has grown conside rably in recent years. We spend timetting to know your processes to.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-lg-4 col-md-6 col-sm-6">
-                            <div className="single-cat text-center mb-50">
-                                <div className="cat-icon">
-                                    <span className="flaticon-ship"></span>
-                                </div>
-                                <div className="cat-cap">
-                                    <h5><a href="services.html">Ship Transport</a></h5>
-                                    <p>The sea freight service has grown conside rably in recent years. We spend timetting to know your processes to.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-lg-4 col-md-6 col-sm-6">
-                            <div className="single-cat text-center mb-50">
-                                <div className="cat-icon">
-                                    <span className="flaticon-plane"></span>
-                                </div>
-                                <div className="cat-cap">
-                                    <h5><a href="services.html">Air Transport</a></h5>
-                                    <p>The sea freight service has grown conside rably in recent years. We spend timetting to know your processes to.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    )}
 
-            {/* About Area */}
-            <div className="about-low-area padding-bottom">
-                <div className="container">
-                    <div className="row">
-                        <div className="col-lg-6 col-md-12">
-                            <div className="about-caption mb-50">
-                                <div className="section-tittle mb-35">
-                                    <span>About Our Company</span>
-                                    <h2>Safe Logistic & Transport Solutions That Saves our Valuable Time!</h2>
-                                </div>
-                                <p>Brook presents your services with flexible, convenient and cdpose layouts. You can select your favorite layouts & elements for cular ts with unlimited ustomization possibilities. Pixel-perfect replication of the designers is intended.</p>
-                                <p>Brook presents your services with flexible, convefnient and chient anipurpose layouts. You can select your favorite layouts.</p>
-                                <a href="about.html" className="btn">More About Us</a>
+                    {!isLoading && searchItem && (
+                        <div className="search-results">
+                            <div className="results-header">
+                                <h3><i className="fas fa-search me-2"></i>Kết quả tìm kiếm</h3>
+                                <p className="search-term">Từ khóa: "<strong>{searchItem}</strong>"</p>
                             </div>
-                        </div>
-                        <div className="col-lg-6 col-md-12">
-                            <div className="about-img">
-                                <div className="about-font-img">
-                                    <img src="assets/img/gallery/about2.png" alt="" />
-                                </div>
-                                <div className="about-back-img d-none d-lg-block">
-                                    <img src="assets/img/gallery/about1.png" alt="" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            {/* Contact Form Area */}
-            <section
-                className="contact-form-area section-bg pt-115 pb-120 fix"
-                style={{ backgroundImage: "url('assets/img/gallery/section_bg02.jpg')" }}
-            >
-                <div className="container">
-                    <div className="row justify-content-end">
-                        <div className="col-xl-8 col-lg-9">
-                            <div className="contact-form-wrapper">
-                                <div className="row">
-                                    <div className="col-lg-12">
-                                        <div className="section-tittle mb-50">
-                                            <span>Get a Qote For Free</span>
-                                            <h2>Request a Free Quote</h2>
-                                            <p>Brook presents your services with flexible, convenient and cdpose layouts. You can select your favorite layouts & elements for.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <form action="#" className="contact-form">
-                                    <div className="row">
-                                        <div className="col-lg-6 col-md-6">
-                                            <div className="input-form">
-                                                <input type="text" placeholder="Name" />
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-6 col-md-6">
-                                            <div className="input-form">
-                                                <input type="text" placeholder="Email" />
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-12">
-                                            <div className="input-form">
-                                                <input type="text" placeholder="Contact Number" />
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-6">
-                                            <div className="select-items">
-                                                <select name="select" id="select1">
-                                                    <option value="">Freight Type</option>
-                                                    <option value="">Catagories One</option>
-                                                    <option value="">Catagories Two</option>
-                                                    <option value="">Catagories Three</option>
-                                                    <option value="">Catagories Four</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-6 col-md-6">
-                                            <div className="input-form">
-                                                <input type="text" placeholder="City of Departure" />
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-6 col-md-6 col-sm-6">
-                                            <div className="input-form">
-                                                <input type="text" placeholder="Incoterms" />
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-6 col-md-6 col-sm-6">
-                                            <div className="input-form">
-                                                <input type="text" placeholder="Weight" />
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-4 col-md-6 col-sm-6">
-                                            <div className="input-form">
-                                                <input type="text" placeholder="Height" />
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-4 col-md-6 col-sm-6">
-                                            <div className="input-form">
-                                                <input type="text" placeholder="Width" />
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-4 col-md-6 col-sm-6">
-                                            <div className="input-form">
-                                                <input type="text" placeholder="length" />
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-12">
-                                            <div className="radio-wrapper mb-30 mt-15">
-                                                <label>Extra services:</label>
-                                                <div className="select-radio">
-                                                    <div className="radio">
-                                                        <input id="radio-1" name="radio" type="radio" defaultChecked />
-                                                        <label htmlFor="radio-1" className="radio-label">Freight</label>
+                            {filteredOrders.length > 0 ? (
+                                <div className="orders-grid">
+                                    {filteredOrders.map((orderItem) => (
+                                        <div key={orderItem.orderCode} className="order-card-wrapper">
+                                            <div className="order-card">
+                                                <div className="order-header">
+                                                    <div className="order-id">
+                                                        <i className="fas fa-box me-2"></i>
+                                                        <span className="order-code">#{orderItem.orderCode}</span>
                                                     </div>
-                                                    <div className="radio">
-                                                        <input id="radio-2" name="radio" type="radio" />
-                                                        <label htmlFor="radio-2" className="radio-label">Express Delivery</label>
+                                                    <div className={`status-badge ${getStatusBadgeClass(orderItem.status)}`}>
+                                                        <i className="fas fa-circle status-dot"></i>
+                                                        {orderItem.status}
                                                     </div>
-                                                    <div className="radio">
-                                                        <input id="radio-4" name="radio" type="radio" />
-                                                        <label htmlFor="radio-4" className="radio-label">Insurance</label>
+                                                </div>
+
+                                                <div className="order-body">
+                                                    <div className="info-group">
+                                                        <div className="info-item">
+                                                            <i className="fas fa-user info-icon"></i>
+                                                            <div className="info-content">
+                                                                <span className="info-label">Khách hàng</span>
+                                                                <span className="info-value">{orderItem.customerName || 'Không có thông tin'}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="info-item">
+                                                            <i className="fas fa-calendar-alt info-icon"></i>
+                                                            <div className="info-content">
+                                                                <span className="info-label">Ngày tạo</span>
+                                                                <span className="info-value">{formatDate(orderItem.createdAt)}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="info-item">
+                                                            <i className="fas fa-money-bill-wave info-icon"></i>
+                                                            <div className="info-content">
+                                                                <span className="info-label">Tổng tiền</span>
+                                                                <span className="info-value amount">{formatMoney(orderItem.totalAmount)}</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div className="radio">
-                                                        <input id="radio-5" name="radio" type="radio" />
-                                                        <label htmlFor="radio-5" className="radio-label">Packaging</label>
-                                                    </div>
+                                                </div>
+
+                                                <div className="order-footer">
+                                                    <button className="btn-update">
+                                                        <i className="fas fa-edit me-2"></i>
+                                                        Cập nhật trạng thái
+                                                    </button>
+                                                    {shouldShowSendButton(orderItem.status) && (
+                                                        <button className="btn-send">
+                                                            <i className="fas fa-paper-plane me-2"></i>
+                                                            Gửi đơn
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="col-lg-12">
-                                            <button name="submit" className="submit-btn">Request a Quote</button>
-                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="no-results">
+                                    <div className="no-results-icon">
+                                        <i className="fas fa-search"></i>
                                     </div>
-                                </form>
-                            </div>
+                                    <h4>Không tìm thấy đơn hàng</h4>
+                                    <p>Không có đơn hàng nào phù hợp với từ khóa "<strong>{searchItem}</strong>"</p>
+                                    <p className="help-text">Vui lòng kiểm tra lại mã đơn hàng và thử lại</p>
+                                </div>
+                            )}
                         </div>
-                    </div>
+                    )}
                 </div>
-            </section>
-
-            {/* Team Area and Testimonial sections would continue here... */}
-            {/* For brevity, I've included just the main sections above */}
+            </div>
         </>
     );
 };
