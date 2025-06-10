@@ -3,7 +3,6 @@ import {getOrderById} from "../Services/OrderService";
 import formatDate from '../utils/date';
 import { formatMoney} from "../utils/Money";
 
-
 const Main = () => {
     const [order, setOrder] = useState(null);
     const [orders, setOrders] = useState([]); // Added missing orders state
@@ -53,19 +52,19 @@ const Main = () => {
     const getStatusBadgeClass = (status) => {
         switch (status?.toLowerCase()) {
             case 'hoàn thành':
-                return 'badge-success';
+                return 'main-page__badge-success';
             case 'mới tạo':
-                return 'badge-primary';
+                return 'main-page__badge-primary';
             case 'đang xử lý':
-                return 'badge-warning';
+                return 'main-page__badge-warning';
             case 'đang giao':
-                return 'badge-info';
+                return 'main-page__badge-info';
             case 'đã hủy':
-                return 'badge-danger';
-            case 'Đơn hoàn lại':
-                return 'badge-return';
+                return 'main-page__badge-danger';
+            case 'đơn hoàn lại':
+                return 'main-page__badge-return';
             default:
-                return 'badge-secondary';
+                return 'main-page__badge-secondary';
         }
     };
 
@@ -78,33 +77,47 @@ const Main = () => {
     return (
         <>
             {/* Hero Slider Area */}
-            <div className="slider-area">
+            <div className="main-page__slider-area">
                 <div className="slider-active">
                     <div className="single-slider slider-height d-flex align-items-center">
                         <div className="container">
                             <div className="row">
                                 <div className="col-xl-9 col-lg-9">
-                                    <div className="hero__caption">
+                                    <div className="main-page__hero-caption">
                                         <h1>Safe & Reliable <span>Logistic</span> Solutions!</h1>
                                     </div>
-                                    <form onSubmit={handleSearch} className="search-box">
-                                        <div className="input-form">
+                                    <form onSubmit={handleSearch} className="main-page__search-box">
+                                        <div className="main-page__input-form">
                                             <input
                                                 type="text"
-                                                placeholder="Nhập mã đơn"
+                                                placeholder="Nhập mã đơn hàng để tra cứu..."
                                                 value={searchItem}
                                                 onChange={handleInputChange}
                                                 disabled={isLoading}
                                             />
                                         </div>
                                         <div className="search-form">
-                                            <button type="submit" disabled={isLoading || !searchItem.trim()}>
-                                                {isLoading ? 'Đang tìm...' : 'Track & Trace'}
+                                            <button
+                                                type="submit"
+                                                disabled={isLoading || !searchItem.trim()}
+                                                className="main-page__search-button"
+                                            >
+                                                {isLoading ? (
+                                                    <>
+                                                        <i className="fas fa-spinner fa-spin me-2"></i>
+                                                        Đang tìm...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <i className="fas fa-search me-2"></i>
+                                                        Track & Trace
+                                                    </>
+                                                )}
                                             </button>
                                         </div>
                                     </form>
-                                    <div className="hero-pera">
-                                        <p>For order status inquiry</p>
+                                    <div className="main-page__hero-pera">
+                                        <p>Tra cứu trạng thái đơn hàng một cách nhanh chóng và chính xác</p>
                                     </div>
                                 </div>
                             </div>
@@ -114,19 +127,19 @@ const Main = () => {
             </div>
 
             {/* Order Results Section */}
-            <div className="order-results-section">
+            <div className="main-page__results-section">
                 <div className="container">
                     {error && (
-                        <div className="alert alert-danger" role="alert">
+                        <div className="main-page__alert" role="alert">
                             <i className="fas fa-exclamation-triangle me-2"></i>
                             {error}
                         </div>
                     )}
 
                     {isLoading && (
-                        <div className="loading-container">
-                            <div className="loading-spinner">
-                                <div className="spinner"></div>
+                        <div className="main-page__loading-container">
+                            <div className="main-page__loading-spinner">
+                                <div className="main-page__spinner"></div>
                                 <p>Đang tìm kiếm đơn hàng...</p>
                             </div>
                         </div>
@@ -134,63 +147,80 @@ const Main = () => {
 
                     {!isLoading && searchItem && (
                         <div className="search-results">
-                            <div className="results-header">
-                                <h3><i className="fas fa-search me-2"></i>Kết quả tìm kiếm</h3>
-                                <p className="search-term">Từ khóa: "<strong>{searchItem}</strong>"</p>
+                            <div className="main-page__results-header">
+                                <h3>
+                                    <i className="fas fa-search"></i>
+                                    Kết quả tìm kiếm
+                                </h3>
+                                <p className="main-page__search-term">
+                                    Từ khóa: "<strong>{searchItem}</strong>"
+                                </p>
                             </div>
 
                             {filteredOrders.length > 0 ? (
-                                <div className="orders-grid">
+                                <div className="main-page__orders-grid">
                                     {filteredOrders.map((orderItem) => (
-                                        <div key={orderItem.orderCode} className="order-card-wrapper">
-                                            <div className="order-card">
-                                                <div className="order-header">
-                                                    <div className="order-id">
+                                        <div key={orderItem.orderCode} className="main-page__order-card-wrapper">
+                                            <div className="main-page__order-card">
+                                                <div className="main-page__order-header">
+                                                    <div className="main-page__order-id">
                                                         <i className="fas fa-box me-2"></i>
-                                                        <span className="order-code">#{orderItem.orderCode}</span>
+                                                        <span className="main-page__order-code">#{orderItem.orderCode}</span>
                                                     </div>
-                                                    <div className={`status-badge ${getStatusBadgeClass(orderItem.status)}`}>
-                                                        <i className="fas fa-circle status-dot"></i>
+                                                    <div className={`main-page__status-badge ${getStatusBadgeClass(orderItem.status)}`}>
+                                                        <i className="fas fa-circle main-page__status-dot"></i>
                                                         {orderItem.status}
                                                     </div>
                                                 </div>
 
-                                                <div className="order-body">
-                                                    <div className="info-group">
-                                                        <div className="info-item">
-                                                            <i className="fas fa-user info-icon"></i>
-                                                            <div className="info-content">
-                                                                <span className="info-label">Khách hàng</span>
-                                                                <span className="info-value">{orderItem.customerName || 'Không có thông tin'}</span>
+                                                <div className="main-page__order-body">
+                                                    <div className="main-page__info-group">
+                                                        <div className="main-page__info-item">
+                                                            <div className="main-page__info-icon">
+                                                                <i className="fas fa-user"></i>
+                                                            </div>
+                                                            <div className="main-page__info-content">
+                                                                <span className="main-page__info-label">Khách hàng</span>
+                                                                <span className="main-page__info-value">
+                                                                    {orderItem.customerName || 'Không có thông tin'}
+                                                                </span>
                                                             </div>
                                                         </div>
 
-                                                        <div className="info-item">
-                                                            <i className="fas fa-calendar-alt info-icon"></i>
-                                                            <div className="info-content">
-                                                                <span className="info-label">Ngày tạo</span>
-                                                                <span className="info-value">{formatDate(orderItem.createdAt)}</span>
+                                                        <div className="main-page__info-item">
+                                                            <div className="main-page__info-icon">
+                                                                <i className="fas fa-calendar-alt"></i>
+                                                            </div>
+                                                            <div className="main-page__info-content">
+                                                                <span className="main-page__info-label">Ngày tạo</span>
+                                                                <span className="main-page__info-value">
+                                                                    {formatDate(orderItem.createdAt)}
+                                                                </span>
                                                             </div>
                                                         </div>
 
-                                                        <div className="info-item">
-                                                            <i className="fas fa-money-bill-wave info-icon"></i>
-                                                            <div className="info-content">
-                                                                <span className="info-label">Tổng tiền</span>
-                                                                <span className="info-value amount">{formatMoney(orderItem.totalAmount)}</span>
+                                                        <div className="main-page__info-item">
+                                                            <div className="main-page__info-icon">
+                                                                <i className="fas fa-money-bill-wave"></i>
+                                                            </div>
+                                                            <div className="main-page__info-content">
+                                                                <span className="main-page__info-label">Tổng tiền</span>
+                                                                <span className="main-page__info-value amount">
+                                                                    {formatMoney(orderItem.totalAmount)}
+                                                                </span>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div className="order-footer">
-                                                    <button className="btn-update">
-                                                        <i className="fas fa-edit me-2"></i>
+                                                <div className="main-page__order-footer">
+                                                    <button className="main-page__btn-update">
+                                                        <i className="fas fa-edit"></i>
                                                         Cập nhật trạng thái
                                                     </button>
                                                     {shouldShowSendButton(orderItem.status) && (
-                                                        <button className="btn-send">
-                                                            <i className="fas fa-paper-plane me-2"></i>
+                                                        <button className="main-page__btn-send">
+                                                            <i className="fas fa-paper-plane"></i>
                                                             Gửi đơn
                                                         </button>
                                                     )}
@@ -200,13 +230,15 @@ const Main = () => {
                                     ))}
                                 </div>
                             ) : (
-                                <div className="no-results">
-                                    <div className="no-results-icon">
+                                <div className="main-page__no-results">
+                                    <div className="main-page__no-results-icon">
                                         <i className="fas fa-search"></i>
                                     </div>
                                     <h4>Không tìm thấy đơn hàng</h4>
                                     <p>Không có đơn hàng nào phù hợp với từ khóa "<strong>{searchItem}</strong>"</p>
-                                    <p className="help-text">Vui lòng kiểm tra lại mã đơn hàng và thử lại</p>
+                                    <p className="main-page__help-text">
+                                        Vui lòng kiểm tra lại mã đơn hàng và thử lại
+                                    </p>
                                 </div>
                             )}
                         </div>

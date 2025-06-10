@@ -1,4 +1,3 @@
-// VehicleList.jsx
 import React from 'react';
 import { useState, useEffect } from 'react';
 import {
@@ -6,14 +5,13 @@ import {
     Truck,
     Clock,
     AlertCircle,
-    CheckCircle,
     ChevronRight,
     CircleEllipsis
 } from 'lucide-react';
 import { Header_Staff, Footer, ScrollToTop } from '../Layout';
 import { getVehicle } from '../Services/VehicleService';
 import SearchFilter from '../Component/SearchFilter'; // Import component SearchFilter
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 // Component VehicleTable được định nghĩa bên ngoài
 const VehicleTable = ({ 
